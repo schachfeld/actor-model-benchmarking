@@ -2,7 +2,6 @@ package main
 
 import (
 	"runtime"
-	"sync"
 	"time"
 
 	"ergo.services/ergo"
@@ -11,17 +10,6 @@ import (
 	"ergo.services/logger/colored"
 	. "github.com/klauspost/cpuid/v2"
 )
-
-var (
-	WGready sync.WaitGroup
-	WG      sync.WaitGroup
-	EVENT   gen.Event = gen.Event{Name: "send"}
-	NCPU    int       = runtime.NumCPU()
-)
-
-type startSend struct {
-	n int
-}
 
 type MyActor struct {
 	i int
@@ -75,7 +63,7 @@ func main() {
 	nodeping.Log().Info("-------------------------- LOCAL 1-1 (start) ----------------------------------")
 	nodeping.Log().Info("Go Version : %s", runtime.Version())
 	nodeping.Log().Info("CPU: %s (Physical Cores: %d)", CPU.BrandName, CPU.PhysicalCores)
-	nodeping.Log().Info("Runtime CPUs: %d", NCPU)
+	nodeping.Log().Info("Runtime CPUs: %d", runtime.NumCPU())
 
 	// starting 1 ping process
 	pid, err := nodeping.Spawn(factoryMyActor, gen.ProcessOptions{})
