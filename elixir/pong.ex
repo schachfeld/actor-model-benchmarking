@@ -10,14 +10,27 @@ defmodule Bench do
   def ping(index, pid) do
     if index == 0 do
       IO.puts("Done")
-      Process.exit(pid, :kill)
+      nil
+    else
+      send(pid, {:ok})
+      ping(index - 1, pid)
     end
-
-    send(pid, {:ok})
-    ping(index - 1, pid)
   end
 end
 
 pid = spawn(Bench, :pong, [])
 
-Bench.ping(100_000_000, pid)
+n = 100_000_000
+
+start_time = :os.system_time(:millisecond)
+IO.puts("Start")
+Bench.ping(n, pid)
+end_time = :os.system_time(:millisecond)
+
+elapsed = end_time - start_time
+elapsedSeconds = elapsed / 1000
+
+IO.puts("received #{n} messages. #{n / elapsedSeconds} msg/sec")
+IO.puts("Total time: #{elapsedSeconds}")
+
+Process.exit(pid, :kill)
