@@ -57,9 +57,6 @@ func main() {
 		panic(err)
 	}
 
-	if err != nil {
-		panic(err)
-	}
 	nodeping.Log().Info("-------------------------- LOCAL 1-1 (start) ----------------------------------")
 	nodeping.Log().Info("Go Version : %s", runtime.Version())
 	nodeping.Log().Info("CPU: %s (Physical Cores: %d)", CPU.BrandName, CPU.PhysicalCores)
