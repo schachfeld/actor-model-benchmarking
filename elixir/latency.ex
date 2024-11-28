@@ -24,7 +24,7 @@ end
 
 pid = spawn(Bench, :pong, [])
 
-n = 10_000
+n = 1_000_000
 
 Bench.ping(n)
 
