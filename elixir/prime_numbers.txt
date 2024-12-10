@@ -1,0 +1,94 @@
+Starting prime number calculation with 10 workers...
+
+10:29:58.179 [error] Process #PID<0.120.0> raised an exception
+** (ArgumentError) ranges (first..last) expect both sides to be integers, got: 2..948.6838250966441
+    (elixir 1.18.0-dev) lib/range.ex:207: Range.new/2
+    prime_number_check.ex:7: PrimeCalculator.is_prime?/1
+    (elixir 1.18.0-dev) lib/enum.ex:1128: anonymous fn/3 in Enum.filter/2
+    (elixir 1.18.0-dev) lib/enum.ex:4503: Enum.reduce_range/5
+    (elixir 1.18.0-dev) lib/enum.ex:2550: Enum.filter/2
+    prime_number_check.ex:15: PrimeWorker.start/3
+
+10:29:58.179 [error] Process #PID<0.119.0> raised an exception
+** (ArgumentError) ranges (first..last) expect both sides to be integers, got: 2..894.4277500167356
+    (elixir 1.18.0-dev) lib/range.ex:207: Range.new/2
+    prime_number_check.ex:7: PrimeCalculator.is_prime?/1
+    (elixir 1.18.0-dev) lib/enum.ex:1128: anonymous fn/3 in Enum.filter/2
+    (elixir 1.18.0-dev) lib/enum.ex:4503: Enum.reduce_range/5
+    (elixir 1.18.0-dev) lib/enum.ex:2550: Enum.filter/2
+    prime_number_check.ex:15: PrimeWorker.start/3
+
+10:29:58.179 [error] Process #PID<0.118.0> raised an exception
+** (ArgumentError) ranges (first..last) expect both sides to be integers, got: 2..836.6606241481668
+    (elixir 1.18.0-dev) lib/range.ex:207: Range.new/2
+    prime_number_check.ex:7: PrimeCalculator.is_prime?/1
+    (elixir 1.18.0-dev) lib/enum.ex:1128: anonymous fn/3 in Enum.filter/2
+    (elixir 1.18.0-dev) lib/enum.ex:4503: Enum.reduce_range/5
+    (elixir 1.18.0-dev) lib/enum.ex:2550: Enum.filter/2
+    prime_number_check.ex:15: PrimeWorker.start/3
+
+10:29:58.179 [error] Process #PID<0.117.0> raised an exception
+** (ArgumentError) ranges (first..last) expect both sides to be integers, got: 2..774.5973147384387
+    (elixir 1.18.0-dev) lib/range.ex:207: Range.new/2
+    prime_number_check.ex:7: PrimeCalculator.is_prime?/1
+    (elixir 1.18.0-dev) lib/enum.ex:1128: anonymous fn/3 in Enum.filter/2
+    (elixir 1.18.0-dev) lib/enum.ex:4503: Enum.reduce_range/5
+    (elixir 1.18.0-dev) lib/enum.ex:2550: Enum.filter/2
+    prime_number_check.ex:15: PrimeWorker.start/3
+
+10:29:58.179 [error] Process #PID<0.116.0> raised an exception
+** (ArgumentError) ranges (first..last) expect both sides to be integers, got: 2..707.1074882929752
+    (elixir 1.18.0-dev) lib/range.ex:207: Range.new/2
+    prime_number_check.ex:7: PrimeCalculator.is_prime?/1
+    (elixir 1.18.0-dev) lib/enum.ex:1128: anonymous fn/3 in Enum.filter/2
+    (elixir 1.18.0-dev) lib/enum.ex:4503: Enum.reduce_range/5
+    (elixir 1.18.0-dev) lib/enum.ex:2550: Enum.filter/2
+    prime_number_check.ex:15: PrimeWorker.start/3
+
+10:29:58.179 [error] Process #PID<0.115.0> raised an exception
+** (ArgumentError) ranges (first..last) expect both sides to be integers, got: 2..632.4563226025969
+    (elixir 1.18.0-dev) lib/range.ex:207: Range.new/2
+    prime_number_check.ex:7: PrimeCalculator.is_prime?/1
+    (elixir 1.18.0-dev) lib/enum.ex:1128: anonymous fn/3 in Enum.filter/2
+    (elixir 1.18.0-dev) lib/enum.ex:4503: Enum.reduce_range/5
+    (elixir 1.18.0-dev) lib/enum.ex:2550: Enum.filter/2
+    prime_number_check.ex:15: PrimeWorker.start/3
+
+10:29:58.179 [error] Process #PID<0.114.0> raised an exception
+** (ArgumentError) ranges (first..last) expect both sides to be integers, got: 2..547.7234703753346
+    (elixir 1.18.0-dev) lib/range.ex:207: Range.new/2
+    prime_number_check.ex:7: PrimeCalculator.is_prime?/1
+    (elixir 1.18.0-dev) lib/enum.ex:1128: anonymous fn/3 in Enum.filter/2
+    (elixir 1.18.0-dev) lib/enum.ex:4503: Enum.reduce_range/5
+    (elixir 1.18.0-dev) lib/enum.ex:2550: Enum.filter/2
+    prime_number_check.ex:15: PrimeWorker.start/3
+
+10:29:58.179 [error] Process #PID<0.113.0> raised an exception
+** (ArgumentError) ranges (first..last) expect both sides to be integers, got: 2..447.2147135325491
+    (elixir 1.18.0-dev) lib/range.ex:207: Range.new/2
+    prime_number_check.ex:7: PrimeCalculator.is_prime?/1
+    (elixir 1.18.0-dev) lib/enum.ex:1128: anonymous fn/3 in Enum.filter/2
+    (elixir 1.18.0-dev) lib/enum.ex:4503: Enum.reduce_range/5
+    (elixir 1.18.0-dev) lib/enum.ex:2550: Enum.filter/2
+    prime_number_check.ex:15: PrimeWorker.start/3
+
+10:29:58.179 [error] Process #PID<0.112.0> raised an exception
+** (ArgumentError) ranges (first..last) expect both sides to be integers, got: 2..316.2293471517152
+    (elixir 1.18.0-dev) lib/range.ex:207: Range.new/2
+    prime_number_check.ex:7: PrimeCalculator.is_prime?/1
+    (elixir 1.18.0-dev) lib/enum.ex:1128: anonymous fn/3 in Enum.filter/2
+    (elixir 1.18.0-dev) lib/enum.ex:4503: Enum.reduce_range/5
+    (elixir 1.18.0-dev) lib/enum.ex:2550: Enum.filter/2
+    prime_number_check.ex:15: PrimeWorker.start/3
+
+10:29:58.179 [error] Process #PID<0.111.0> raised an exception
+** (ArgumentError) ranges (first..last) expect both sides to be integers, got: 2..1.7320508075688772
+    (elixir 1.18.0-dev) lib/range.ex:207: Range.new/2
+    prime_number_check.ex:7: PrimeCalculator.is_prime?/1
+    (elixir 1.18.0-dev) lib/enum.ex:1128: anonymous fn/3 in Enum.filter/2
+    (elixir 1.18.0-dev) lib/enum.ex:4503: Enum.reduce_range/5
+    (elixir 1.18.0-dev) lib/enum.ex:2550: Enum.filter/2
+    prime_number_check.ex:15: PrimeWorker.start/3
+
+BREAK: (a)bort (A)bort with dump (c)ontinue (p)roc info (i)nfo
+       (l)oaded (v)ersion (k)ill (D)b-tables (d)istribution
