@@ -2,24 +2,38 @@ package prime
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 
-
+import scala.annotation.tailrec
 import scala.math.sqrt
 import scala.collection.mutable.ListBuffer
 
 object PrimeCalculator {
-  def isPrime(n: Int): Boolean = {
+  def isPrimeI(n: Int): Boolean = {
     if (n < 2) false
     else if (n == 2) true
-    else !(2 to sqrt(n).toInt).exists(x => n % x == 0)
+    else {
+      var isPrime = true
+      val limit = math.sqrt(n).toInt
+      for (i <- 2 to limit) {
+        if (n % i == 0) {
+          isPrime = false
+        }
+      }
+      isPrime
+    }
 
-    // try implementing as a loop
   }
-  
-  def isPrimeRecursive(n: Int): Boolean = {
-    
+
+  def isPrime(n: Int): Boolean = {
+    @tailrec
+    def checkDivisibility(i: Int): Boolean = {
+      if (i > math.sqrt(n).toInt) true
+      else if (n % i == 0) false
+      else checkDivisibility(i + 1)
+    }
+
     if (n < 2) false
     else if (n == 2) true
-    else 
+    else checkDivisibility(2)
   }
 }
 
@@ -67,12 +81,12 @@ class PrimeCoordinator(totalWorkers: Int, range: Range) extends Actor {
       }
   }
 }
-IO
+
 // Main object to run the application
 object ParallelPrimeApp extends App {
   val system = ActorSystem("PrimeSystem")
-  val range = 1 to 1_000_000
-  val totalWorkers = 1
+  val range = 1 to 10_000_000
+  val totalWorkers = 10
 
   val coordinator = system.actorOf(Props(new PrimeCoordinator(totalWorkers, range)), "coordinator")
   coordinator ! StartCalculation

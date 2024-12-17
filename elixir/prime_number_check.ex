@@ -11,8 +11,15 @@ end
 
 defmodule PrimeWorker do
   def start(worker_id, range, parent_pid) do
-    primes = Enum.filter(range, &PrimeCalculator.is_prime?/1)
-    send(parent_pid, {:result, worker_id, primes})
+    prime_count = 0
+
+    for num <- range do
+      if PrimeCalculator.is_prime?(num) do
+        prime_count = prime_count + 1
+      end
+    end
+
+    send(parent_pid, {:result, worker_id, prime_count})
   end
 end
 
@@ -30,41 +37,41 @@ defmodule PrimeCoordinator do
       spawn(PrimeWorker, :start, [worker_id, worker_range, parent_pid])
     end)
 
-    collect_results(total_workers, [])
+    collect_results(total_workers, 0)
   end
 
-  defp collect_results(0, acc), do: Enum.sort(List.flatten(acc))
+  defp collect_results(0, acc), do: acc
 
   defp collect_results(remaining, acc) do
     receive do
-      {:result, _worker_id, primes} ->
-        collect_results(remaining - 1, [primes | acc])
+      {:result, _worker_id, prime_count} ->
+        collect_results(remaining - 1, acc + prime_count)
     end
   end
 end
 
 defmodule PrimeApp do
   def run do
-    range = 1..1_000_000
-    total_workers = 1
+    range = 1..10_000_000
+    total_workers = 10
 
     IO.puts("Starting prime number calculation with #{total_workers} workers...")
 
     start_time = :os.system_time(:millisecond)
-    primes = PrimeCoordinator.start(total_workers, range)
+    prime_count = PrimeCoordinator.start(total_workers, range)
     end_time = :os.system_time(:millisecond)
 
-    IO.puts("Found #{length(primes)} prime numbers.")
+    IO.puts("Found #{prime_count} prime numbers.")
     IO.puts("Calculation took #{end_time - start_time} milliseconds.")
   end
 end
 
-# PrimeApp.run()
+PrimeApp.run()
 
-start_time = :os.system_time(:nanosecond)
-is_prime = PrimeCalculator.is_prime?(9_999_991)
-end_time = :os.system_time(:nanosecond)
+# start_time = :os.system_time(:millisecond)
+# is_prime = PrimeCalculator.is_prime?(9_999_991)
+# end_time = :os.system_time(:millisecond)
 
-is_prime |> IO.inspect()
+# is_prime |> IO.inspect()
 
-IO.puts("Prime check took #{end_time - start_time} nanoseconds.")
+# IO.puts("Prime check took #{end_time - start_time} milliseconds.")
