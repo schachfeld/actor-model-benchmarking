@@ -38,7 +38,9 @@ object PrimeCalculator {
 }
 
 case class CalculatePrimes(range: Range)
+
 case class PrimeResult(primes: List[Int])
+
 case object StartCalculation
 
 class PrimeWorker extends Actor {
@@ -82,7 +84,6 @@ class PrimeCoordinator(totalWorkers: Int, range: Range) extends Actor {
   }
 }
 
-// Main object to run the application
 object ParallelPrimeApp extends App {
   val system = ActorSystem("PrimeSystem")
   val range = 1 to 10_000_000
@@ -92,12 +93,32 @@ object ParallelPrimeApp extends App {
   coordinator ! StartCalculation
 }
 
-object HighestPrime {
-  def main(args: Array[String]) = {
-    val startTime = System.currentTimeMillis()
-    val isPrime = PrimeCalculator.isPrime(9_999_991)
-    val endTime = System.currentTimeMillis()
-    println(s"${isPrime}")
-    println(s"Calculation took ${endTime - startTime} milliseconds.")
-  }
+object HighestPrime extends App {
+  val startTime = System.nanoTime()
+  val isPrime = PrimeCalculator.isPrime(9_999_991)
+//  val isPrime = PrimeCalculator.isPrime(7)
+
+  val endTime = System.nanoTime()
+  println(s"${isPrime}")
+  println(s"Calculation took ${endTime - startTime} nanoseconds.")
+}
+
+
+object RangeWithOne extends App {
+  val system = ActorSystem("PrimeSystem")
+  val worker = system.actorOf(Props(new PrimeWorker()), "worker")
+
+  val startTime = System.currentTimeMillis()
+
+  val listener = system.actorOf(Props(new Actor {
+    def receive = {
+      case PrimeResult(primes) =>
+        val endTime = System.currentTimeMillis()
+        println(s"Found ${primes.length} prime numbers.")
+        println(s"Calculation took ${endTime - startTime} milliseconds.")
+        context.system.terminate()
+    }
+  }))
+
+  worker.tell(CalculatePrimes(1 to 1_000_000), listener)
 }

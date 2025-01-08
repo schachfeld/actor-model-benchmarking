@@ -11,15 +11,30 @@ end
 
 defmodule PrimeWorker do
   def start(worker_id, range, parent_pid) do
-    prime_count = 0
+    # prime_count =
+    #   for num <- range, PrimeCalculator.is_prime?(num), reduce: 0 do
+    #     acc -> acc + 1
+    #   end
 
-    for num <- range do
-      if PrimeCalculator.is_prime?(num) do
-        prime_count = prime_count + 1
-      end
-    end
+    list = Enum.to_list(range)
+
+    prime_count = count_primes_recursive(list, 0)
 
     send(parent_pid, {:result, worker_id, prime_count})
+  end
+
+  def count_primes_recursive(range, acc) do
+    case range do
+      [] ->
+        acc
+
+      [head | tail] ->
+        if PrimeCalculator.is_prime?(head) do
+          count_primes_recursive(tail, acc + 1)
+        else
+          count_primes_recursive(tail, acc)
+        end
+    end
   end
 end
 
@@ -66,12 +81,44 @@ defmodule PrimeApp do
   end
 end
 
-PrimeApp.run()
+defmodule PrimeSingleWorkerTest do
+  def run do
+    start_time = :os.system_time(:millisecond)
 
-# start_time = :os.system_time(:millisecond)
-# is_prime = PrimeCalculator.is_prime?(9_999_991)
-# end_time = :os.system_time(:millisecond)
+    range = 1..1_000_000
+    PrimeWorker.start(1, range, self())
 
-# is_prime |> IO.inspect()
+    receive do
+      {:result, _worker_id, prime_count} ->
+        end_time = :os.system_time(:millisecond)
+        IO.puts("Found #{prime_count} prime numbers.")
+        IO.puts("Calculation took #{end_time - start_time} milliseconds.")
+    end
+  end
+end
 
-# IO.puts("Prime check took #{end_time - start_time} milliseconds.")
+defmodule PrimeUtils do
+  def measure_prime_check(number) do
+    start_time = :os.system_time(:nanosecond)
+    is_prime = PrimeCalculator.is_prime?(number)
+    end_time = :os.system_time(:nanosecond)
+
+    # IO.inspect(is_prime)
+    IO.puts("Prime check took #{end_time - start_time} nanoseconds.")
+  end
+end
+
+# PrimeApp.run()
+# PrimeSingleWorkerTest.run()
+PrimeUtils.measure_prime_check(7)
+# PrimeUtils.measure_prime_check(9_999_991)
+
+# start_time = :os.system_time(:nanosecond)
+
+# for num <- 1..1_000_000 do
+#   PrimeUtils.measure_prime_check(num)
+# end
+
+# end_time = :os.system_time(:nanosecond)
+
+# IO.puts("Prime checks took #{end_time - start_time} nanoseconds.")
