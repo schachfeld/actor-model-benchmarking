@@ -108,9 +108,9 @@ defmodule PrimeUtils do
   end
 end
 
-# PrimeApp.run()
+PrimeApp.run()
 # PrimeSingleWorkerTest.run()
-PrimeUtils.measure_prime_check(7)
+# PrimeUtils.measure_prime_check(7)
 # PrimeUtils.measure_prime_check(9_999_991)
 
 # start_time = :os.system_time(:nanosecond)

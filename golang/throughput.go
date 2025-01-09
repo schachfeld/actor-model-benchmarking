@@ -69,6 +69,8 @@ func testThroughput() {
 	}
 	nodeping.Log().Info("BENCHMARK: 1 process sends %d messages to 1 process", N)
 
+	nodeping.Log().Info("Process PID: %s", pid)
+
 	start := time.Now()
 	for i := 0; i < N; i++ {
 		nodeping.Send(pid, nil)

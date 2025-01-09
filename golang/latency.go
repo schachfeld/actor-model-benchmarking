@@ -37,7 +37,7 @@ func testLatency() {
 	// var times []time.Duration
 	for i := 0; i < 1_000_000; i++ {
 		start := time.Now()
-		_, err := nodeping.Spawn(factoryMyActor, gen.ProcessOptions{})
+		_, err := nodeping.Spawn(factoryPrimeWorker, gen.ProcessOptions{})
 		if err != nil {
 			panic(err)
 		}
