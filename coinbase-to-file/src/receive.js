@@ -15,10 +15,6 @@ const SIGNING_KEY = process.env.SIGNING_KEY;
 
 const algorithm = "ES256";
 
-if (!SIGNING_KEY.length || !API_KEY.length) {
-  throw new Error("missing mandatory environment variable(s)");
-}
-
 const CHANNEL_NAMES = {
   level2: "level2",
   user: "user",
@@ -69,8 +65,7 @@ function unsubscribeToProducts(products, channelName, ws) {
     channel: channelName,
     product_ids: products,
   };
-  const subscribeMsg = signWithJWT(message, channelName, products);
-  ws.send(JSON.stringify(subscribeMsg));
+  ws.send(JSON.stringify(message));
 }
 
 function onMessage(data) {
@@ -88,12 +83,14 @@ for (let i = 0; i < 1; i++) {
   const ws = new WebSocket(WS_API_URL);
 
   ws.on("message", function (data) {
-    // const date2 = new Date(new Date().toUTCString());
-    // const diffTime = Math.abs(date2 - date1);
-    // if (diffTime > 5000 && !sentUnsub) {
-    //   unsubscribeToProducts(["BTC-USD"], CHANNEL_NAMES.level2, ws);
-    //   sentUnsub = true;
-    // }
+    const date2 = new Date(new Date().toUTCString());
+    const diffTime = Math.abs(date2 - date1);
+    if (diffTime > 5000 && !sentUnsub) {
+      unsubscribeToProducts(["BTC-USD"], CHANNEL_NAMES.level2, ws);
+      sentUnsub = true;
+      console.log("Unsubscribed");
+      exit();
+    }
 
     const parsedData = JSON.parse(data);
     fs.appendFile("Output1.txt", data, (err) => {
@@ -107,8 +104,8 @@ for (let i = 0; i < 1; i++) {
   });
 
   ws.on("open", function () {
-    const products = ["BTC-USD"];
-    subscribeToProducts(products, CHANNEL_NAMES.tickers, ws);
+    const products = ["BTC-USD", "ETH-USD", "LTC-USD", "BCH-USD"];
+    subscribeToProducts(products, CHANNEL_NAMES.level2, ws);
   });
 
   connections.push(ws);
