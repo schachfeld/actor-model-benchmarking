@@ -7,6 +7,8 @@ import (
 
 type Coordinator struct {
 	act.Supervisor
+	fileReader      gen.PID
+	jsonInterpreter gen.PID
 }
 
 type CoordinatorStartMessage struct {
@@ -20,9 +22,13 @@ func (s *Coordinator) Init(args ...any) (act.SupervisorSpec, error) {
 	s.Log().Info("initialize supervisor...")
 	spec := act.SupervisorSpec{
 		Children: []act.SupervisorChildSpec{
-			act.SupervisorChildSpec{
+			{
 				Name:    "fileReader",
 				Factory: fileReaderFactory,
+			},
+			{
+				Name:    "jsonInterpreter",
+				Factory: jsonInterpreterFactory,
 			},
 		},
 	}
@@ -32,12 +38,26 @@ func (s *Coordinator) Init(args ...any) (act.SupervisorSpec, error) {
 func (s *Coordinator) HandleMessage(from gen.PID, message any) error {
 	switch message.(type) {
 	case CoordinatorStartMessage:
-		// start the child process
-		pid, err := s.Spawn(fileReaderFactory, gen.ProcessOptions{})
-		if err != nil {
-			return err
+		{ // start the child actors
+			pid, err := s.Spawn(fileReaderFactory, gen.ProcessOptions{})
+			if err != nil {
+				return err
+			}
+			s.fileReader = pid
+
+			pid, err = s.Spawn(jsonInterpreterFactory, gen.ProcessOptions{})
+			if err != nil {
+				return err
+			}
+			s.jsonInterpreter = pid
+
+			s.Send(s.fileReader, ReadFileMessage{filename: "Output1.txt"})
 		}
-		s.Send(pid, ReadFileMessage{filename: "Output1.txt"})
+
+	case ParseJsonMessage:
+		{
+			s.Send(s.jsonInterpreter, message)
+		}
 	}
 	return nil
 }

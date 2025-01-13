@@ -8,26 +8,26 @@ import (
 	"ergo.services/ergo/gen"
 )
 
-type FileReader struct {
+type OneHourPriceTracker struct {
 	act.Actor
 }
 
-type ReadFileMessage struct {
+type XYZMessage struct {
 	filename string
 }
 
-func fileReaderFactory() gen.ProcessBehavior {
-	return &FileReader{}
+func oneHourPriceTrackerFactory() gen.ProcessBehavior {
+	return &OneHourPriceTracker{}
 }
 
-func (a *FileReader) Init(args ...any) error {
+func (a *OneHourPriceTracker) Init(args ...any) error {
 	return nil
 }
 
-func (a *FileReader) HandleMessage(from gen.PID, message any) error {
+func (a *OneHourPriceTracker) HandleMessage(from gen.PID, message any) error {
 	a.Log().Info("Received message %v from %s", message, from)
 	switch msg := message.(type) {
-	case ReadFileMessage:
+	case XYZMessage:
 		file, err := os.Open(msg.filename)
 
 		if err != nil {
@@ -51,6 +51,6 @@ func (a *FileReader) HandleMessage(from gen.PID, message any) error {
 	return nil
 }
 
-func (a *FileReader) Terminate(reason error) {
+func (a *OneHourPriceTracker) Terminate(reason error) {
 	a.Log().Info("%s terminated with reason: %s", a.PID(), reason)
 }

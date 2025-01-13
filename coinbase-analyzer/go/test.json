@@ -1,0 +1,44 @@
+{
+  "channel": "l2_data",
+  "client_id": "",
+  "timestamp": "2025-01-11T09:15:29.087305649Z",
+  "sequence_num": 29,
+  "events": [
+    {
+      "type": "update",
+      "product_id": "BTC-USD",
+      "updates": [
+        {
+          "side": "bid",
+          "event_time": "2025-01-11T09:15:29.02858Z",
+          "price_level": "94088.8",
+          "new_quantity": "0"
+        },
+        {
+          "side": "bid",
+          "event_time": "2025-01-11T09:15:29.02858Z",
+          "price_level": "94088.79",
+          "new_quantity": "0"
+        },
+        {
+          "side": "bid",
+          "event_time": "2025-01-11T09:15:29.02858Z",
+          "price_level": "94088.78",
+          "new_quantity": "0.00053118"
+        },
+        {
+          "side": "bid",
+          "event_time": "2025-01-11T09:15:29.02858Z",
+          "price_level": "94038.94",
+          "new_quantity": "0.31026993"
+        },
+        {
+          "side": "offer",
+          "event_time": "2025-01-11T09:15:29.02858Z",
+          "price_level": "94173.79",
+          "new_quantity": "0"
+        }
+      ]
+    }
+  ]
+}

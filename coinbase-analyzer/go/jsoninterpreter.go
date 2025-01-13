@@ -24,11 +24,14 @@ func (a *JsonInterpreter) Init(args ...any) error {
 }
 
 func (a *JsonInterpreter) HandleMessage(from gen.PID, message any) error {
-	a.Log().Info("Received message %v from %s", message, from)
 	switch msg := message.(type) {
 	case ParseJsonMessage:
 		var result map[string]any
-		json.Unmarshal([]byte(msg.json), &result)
+		error := json.Unmarshal([]byte(msg.json), &result)
+		if error != nil {
+			a.Log().Error("Error parsing JSON: %s", error)
+		}
+		// fmt.Println(result)
 	}
 	return nil
 }
