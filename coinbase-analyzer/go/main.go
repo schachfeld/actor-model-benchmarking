@@ -40,7 +40,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	node.Log().Info("Started File Reader Actor with PID: %s", pid)
+	node.Log().Info("Started Coordinator Actor with PID: %s", pid)
 
 	// send start message to the process
 	err = node.Send(pid, CoordinatorStartMessage{})

@@ -25,7 +25,6 @@ func (a *FileReader) Init(args ...any) error {
 }
 
 func (a *FileReader) HandleMessage(from gen.PID, message any) error {
-	a.Log().Info("Received message %v from %s", message, from)
 	switch msg := message.(type) {
 	case ReadFileMessage:
 		file, err := os.Open(msg.filename)
@@ -39,7 +38,6 @@ func (a *FileReader) HandleMessage(from gen.PID, message any) error {
 		buf := make([]byte, 0, 64*64*1024)
 		scanner.Buffer(buf, 1024*1024*1024)
 
-		// TODO: remove this, it's only for testing purpouses
 		for scanner.Scan() {
 			a.Send(a.Parent(), ParseJsonMessage{json: scanner.Text()})
 		}
@@ -47,6 +45,8 @@ func (a *FileReader) HandleMessage(from gen.PID, message any) error {
 		if err := scanner.Err(); err != nil {
 			return err
 		}
+
+		a.Log().Info("FileReader done!")
 	}
 	return nil
 }
