@@ -22,7 +22,10 @@ func avgOrderBookCalculatorFactory() gen.ProcessBehavior {
 }
 
 func (a *AvgOrderBookCalculator) Init(args ...any) error {
-	filewriter, err := a.Spawn(fileWriterFactory, gen.ProcessOptions{}, "orderbok.txt")
+
+	productName := args[0].(string)
+
+	filewriter, err := a.Spawn(fileWriterFactory, gen.ProcessOptions{}, productName+".txt")
 	if err != nil {
 		return err
 	}
@@ -34,6 +37,7 @@ func (a *AvgOrderBookCalculator) Init(args ...any) error {
 }
 
 func (a *AvgOrderBookCalculator) HandleMessage(from gen.PID, message any) error {
+	// a.Log().Info("Received message from %s", from)
 	switch msg := message.(type) {
 	case UpdatesMessage:
 		{
@@ -61,6 +65,10 @@ func (a *AvgOrderBookCalculator) HandleMessage(from gen.PID, message any) error 
 			if !math.IsNaN(avgOffers) {
 				a.Send(a.filewriter, WriteLineMessage{content: "Offers: " + strconv.FormatFloat(avg(offers), 'f', -1, 64)})
 			}
+		}
+	default:
+		{
+			panic("AvgOrderBookCalculator received unknown message")
 		}
 	}
 	return nil

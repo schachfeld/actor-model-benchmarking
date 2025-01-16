@@ -10,6 +10,7 @@ import (
 
 type JsonInterpreter struct {
 	act.Actor
+	productRouter gen.PID
 }
 
 type ParseJsonMessage struct {
@@ -42,25 +43,35 @@ func jsonInterpreterFactory() gen.ProcessBehavior {
 }
 
 func (a *JsonInterpreter) Init(args ...any) error {
-
+	pid, err := a.Spawn(productRouterFactory, gen.ProcessOptions{})
+	if err != nil {
+		return err
+	}
+	a.productRouter = pid
 	return nil
 }
 
 func (a *JsonInterpreter) HandleMessage(from gen.PID, message any) error {
 	switch msg := message.(type) {
 	case ParseJsonMessage:
-		var result CBMessage
+		{
+			var result CBMessage
 
-		decoder := json.NewDecoder(strings.NewReader(msg.json))
-		decoder.DisallowUnknownFields()
+			decoder := json.NewDecoder(strings.NewReader(msg.json))
+			decoder.DisallowUnknownFields()
 
-		err := decoder.Decode(&result)
-		if err != nil {
-			// a.Log().Warning("Error parsing JSON. Skipping message")
-			return nil
+			err := decoder.Decode(&result)
+			if err != nil {
+				// a.Log().Warning("Error parsing JSON. Skipping message")
+				return nil
+			}
+
+			a.Send(a.productRouter, RouteJsonMessage{cbMessage: result})
 		}
-
-		a.Send(a.Parent(), DistributeJsonMessage{cbMessage: result})
+	default:
+		{
+			panic("JsonInterpreter received unknown message")
+		}
 	}
 	return nil
 }

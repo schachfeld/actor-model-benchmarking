@@ -7,15 +7,13 @@ import (
 
 type Coordinator struct {
 	act.Supervisor
-	fileReader             gen.PID
-	jsonInterpreter        gen.PID
-	avgOrderBookCalculator gen.PID
+	fileReader gen.PID
 }
 
 type CoordinatorStartMessage struct {
 }
 
-type DistributeJsonMessage struct {
+type RouteJsonMessage struct {
 	cbMessage CBMessage
 }
 
@@ -42,7 +40,7 @@ func (s *Coordinator) Init(args ...any) (act.SupervisorSpec, error) {
 
 func (s *Coordinator) HandleMessage(from gen.PID, message any) error {
 	// s.Log().Info("Received message from %s", from)
-	switch message := message.(type) {
+	switch message.(type) {
 	case CoordinatorStartMessage:
 		{ // start the child actors
 			pid, err := s.Spawn(fileReaderFactory, gen.ProcessOptions{})
@@ -52,36 +50,14 @@ func (s *Coordinator) HandleMessage(from gen.PID, message any) error {
 			s.fileReader = pid
 			s.Log().Info("fileReader started")
 
-			pid, err = s.Spawn(jsonInterpreterFactory, gen.ProcessOptions{})
-			if err != nil {
-				return err
-			}
-			s.jsonInterpreter = pid
-			s.Log().Info("jsonInterpreter started")
-
-			pid, err = s.Spawn(avgOrderBookCalculatorFactory, gen.ProcessOptions{})
-			if err != nil {
-				return err
-			}
-			s.avgOrderBookCalculator = pid
-			s.Log().Info("avgOrderBookCalculator started")
-
 			// Start the test
 			s.Send(s.fileReader, ReadFileMessage{filename: "messages.log"})
 		}
-
-	case ParseJsonMessage:
+	default:
 		{
-			s.Send(s.jsonInterpreter, message)
+			panic("Coordinator received unknown message")
 		}
-	case DistributeJsonMessage:
-		{
-			if len(message.cbMessage.Events) > 0 {
-				updates := message.cbMessage.Events[0].Updates
 
-				s.Send(s.avgOrderBookCalculator, UpdatesMessage{updates: updates})
-			}
-		}
 	}
 	return nil
 }
