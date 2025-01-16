@@ -55,7 +55,10 @@ func main() {
 		}
 	}()
 
-	c.WriteMessage(websocket.TextMessage, []byte(`{"type": "subscribe", "channel": "level2", "product_ids": ["BTC-USD"]}`))
+	c.WriteMessage(websocket.TextMessage, []byte(`{"type": "subscribe", "channel": "level2", "product_ids": ["BTC-USD", 
+	"ETH-USD", "ETH-BTC", "LTC-USD", "LTC-BTC", "BCH-USD", "BCH-BTC", "ETC-USD", "ETC-BTC", "ZRX-USD", "ZRX-BTC",
+	"BAT-USD", "BAT-BTC", "LINK-USD", "LINK-BTC", "DAI-USD", "DAI-BTC", "REP-USD", "REP-BTC", "OMG-USD", "OMG-BTC"
+	]}`))
 
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()

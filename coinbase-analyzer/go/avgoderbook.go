@@ -25,7 +25,7 @@ func (a *AvgOrderBookCalculator) Init(args ...any) error {
 
 	productName := args[0].(string)
 
-	filewriter, err := a.Spawn(fileWriterFactory, gen.ProcessOptions{}, productName+".txt")
+	filewriter, err := a.Spawn(fileWriterFactory, gen.ProcessOptions{}, "orderbookdata/"+productName+".txt")
 	if err != nil {
 		return err
 	}
