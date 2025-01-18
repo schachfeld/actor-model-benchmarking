@@ -66,6 +66,14 @@ func (a *AvgOrderBookCalculator) HandleMessage(from gen.PID, message any) error 
 				a.Send(a.filewriter, WriteLineMessage{content: "Offers: " + strconv.FormatFloat(avg(offers), 'f', -1, 64)})
 			}
 		}
+	case LastMessage:
+		{
+			a.Send(a.filewriter, LastMessage{})
+		}
+	case DoneMessage:
+		{
+			a.Send(a.Parent(), DoneMessage{})
+		}
 	default:
 		{
 			panic("AvgOrderBookCalculator received unknown message")

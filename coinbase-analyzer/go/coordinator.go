@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"ergo.services/ergo/act"
 	"ergo.services/ergo/gen"
 )
@@ -8,9 +10,16 @@ import (
 type Coordinator struct {
 	act.Supervisor
 	fileReader gen.PID
+	startTime  time.Time
 }
 
 type CoordinatorStartMessage struct {
+}
+
+type LastMessage struct {
+}
+
+type DoneMessage struct {
 }
 
 type RouteJsonMessage struct {
@@ -43,6 +52,7 @@ func (s *Coordinator) HandleMessage(from gen.PID, message any) error {
 	switch message.(type) {
 	case CoordinatorStartMessage:
 		{ // start the child actors
+			s.startTime = time.Now()
 			pid, err := s.Spawn(fileReaderFactory, gen.ProcessOptions{})
 			if err != nil {
 				return err
@@ -51,7 +61,13 @@ func (s *Coordinator) HandleMessage(from gen.PID, message any) error {
 			s.Log().Info("fileReader started")
 
 			// Start the test
-			s.Send(s.fileReader, ReadFileMessage{filename: "messages.log"})
+			s.Send(s.fileReader, ReadFileMessage{filename: "../messages.log"})
+		}
+	case DoneMessage:
+		{
+			elapsed := time.Since(s.startTime)
+			s.Log().Info("Coordinator received DoneMessage")
+			s.Log().Info("Elapsed time: %s", elapsed)
 		}
 	default:
 		{

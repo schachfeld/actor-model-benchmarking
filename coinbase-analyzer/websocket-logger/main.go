@@ -60,19 +60,21 @@ func main() {
 	"BAT-USD", "BAT-BTC", "LINK-USD", "LINK-BTC", "DAI-USD", "DAI-BTC", "REP-USD", "REP-BTC", "OMG-USD", "OMG-BTC"
 	]}`))
 
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(2 * time.Hour)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-done:
 			return
-		case t := <-ticker.C:
-			err := c.WriteMessage(websocket.TextMessage, []byte(t.String()))
+		case <-ticker.C:
+			log.Println("2 hours passed, stopping the connection")
+			err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 			if err != nil {
-				log.Println("write:", err)
+				log.Println("write close:", err)
 				return
 			}
+			return
 		case <-interrupt:
 			log.Println("interrupt")
 

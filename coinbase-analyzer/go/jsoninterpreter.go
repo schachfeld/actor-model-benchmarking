@@ -68,6 +68,15 @@ func (a *JsonInterpreter) HandleMessage(from gen.PID, message any) error {
 
 			a.Send(a.productRouter, RouteJsonMessage{cbMessage: result})
 		}
+	case LastMessage:
+		{
+
+			a.Send(a.productRouter, LastMessage{})
+		}
+	case DoneMessage:
+		{
+			a.Send(a.Parent(), DoneMessage{})
+		}
 	default:
 		{
 			panic("JsonInterpreter received unknown message")

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"runtime"
 	"time"
 
@@ -11,6 +13,17 @@ import (
 )
 
 func main() {
+
+	newpath := filepath.Join(".", "orderbookdata")
+	err := os.MkdirAll(newpath, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	err = os.RemoveAll(filepath.Join(newpath, "*"))
+	if err != nil {
+		panic(err)
+	}
+
 	options := gen.NodeOptions{}
 	options.Network.Cookie = "cookie"
 	loggercolored, err := colored.CreateLogger(colored.Options{

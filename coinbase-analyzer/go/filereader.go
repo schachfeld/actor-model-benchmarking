@@ -51,11 +51,18 @@ func (a *FileReader) HandleMessage(from gen.PID, message any) error {
 				a.Send(a.jsonInterpreter, ParseJsonMessage{json: scanner.Text()})
 			}
 
+			a.Send(a.jsonInterpreter, LastMessage{})
+
 			if err := scanner.Err(); err != nil {
 				return err
 			}
 
 			a.Log().Info("FileReader done!")
+		}
+	case DoneMessage:
+		{
+			a.Log().Info("FileReader received DoneMessage")
+			a.Send(a.Parent(), DoneMessage{})
 		}
 	default:
 		panic("'FileReader' actor received unknown message")

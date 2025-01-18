@@ -34,6 +34,14 @@ func (a *ProductDistributor) HandleMessage(from gen.PID, message any) error {
 		{
 			a.Send(a.avgOrderBookCalculator, UpdatesMessage{updates: msg.Updates})
 		}
+	case LastMessage:
+		{
+			a.Send(a.avgOrderBookCalculator, LastMessage{})
+		}
+	case DoneMessage:
+		{
+			a.Send(a.Parent(), DoneMessage{})
+		}
 	default:
 		{
 			panic("ProductDistributor received unknown message")

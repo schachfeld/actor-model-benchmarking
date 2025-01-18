@@ -56,6 +56,17 @@ func (a *FileWriter) HandleMessage(from gen.PID, message any) error {
 		} else {
 			return fmt.Errorf("file %s is not open", a.filename)
 		}
+	case LastMessage:
+		{
+			if a.isOpen {
+				a.file.Close()
+				a.isOpen = false
+			}
+			a.Send(a.Parent(), DoneMessage{})
+			return nil
+		}
+	default:
+		return fmt.Errorf("unknown message: %T", message)
 	}
 
 	return nil
