@@ -29,10 +29,10 @@ defmodule CBUpdate do
 end
 
 defmodule FileWriter do
-  def writeLine(filename, file \\ nil) do
+  def writeLine(parent, filename, file \\ nil) do
     file =
       if file == nil do
-        File.open!(filename, [:write, :utf8])
+        File.open!(filename, [:append, :utf8])
       else
         file
       end
@@ -41,9 +41,13 @@ defmodule FileWriter do
       {:writeLine, content} ->
         IO.write(file, content)
         IO.write(file, "\n")
-    end
 
-    writeLine(filename, file)
+        writeLine(parent, filename, file)
+
+      {:lastmessage} ->
+        File.close(file)
+        send(parent, {:donemessage})
+    end
   end
 end
 
@@ -55,10 +59,10 @@ defmodule AvgOrderBookCalculator do
     end
   end
 
-  def calculateOrderBookAvg(productId, filewriterPID \\ nil) do
+  def calculateOrderBookAvg(parent, productId, filewriterPID \\ nil) do
     filewriterPID =
       if filewriterPID == nil do
-        spawn(FileWriter, :writeLine, ["orderbooks/" <> productId <> ".txt"])
+        spawn(FileWriter, :writeLine, [self(), "orderbooks/" <> productId <> ".txt"])
       else
         filewriterPID
       end
@@ -104,50 +108,89 @@ defmodule AvgOrderBookCalculator do
             send(filewriterPID, {:writeLine, "Average offers: #{avgOffers}"})
           end
         end
+
+      {:lastmessage} ->
+        send(filewriterPID, {:lastmessage})
+
+      {:donemessage} ->
+        send(parent, {:donemessage})
     end
 
-    calculateOrderBookAvg(productId, filewriterPID)
+    calculateOrderBookAvg(parent, productId, filewriterPID)
   end
 end
 
 defmodule ProductDistributor do
-  def start(productId, avgOrderBookPID \\ nil) do
+  def start(parent, productId, avgOrderBookPID \\ nil) do
     avgOrderBookPID =
       if avgOrderBookPID == nil do
-        spawn(AvgOrderBookCalculator, :calculateOrderBookAvg, [productId])
+        spawn(AvgOrderBookCalculator, :calculateOrderBookAvg, [self(), productId])
       else
         avgOrderBookPID
       end
 
     receive do
-      {:cbevent, %CBEvent{} = event} -> send(avgOrderBookPID, {:cbupdate, event.updates})
+      {:cbevent, %CBEvent{} = event} ->
+        send(avgOrderBookPID, {:cbupdate, event.updates})
+
+      {:lastmessage} ->
+        send(avgOrderBookPID, {:lastmessage})
+
+      {:donemessage} ->
+        send(parent, {:donemessage, self()})
     end
 
-    start(productId, avgOrderBookPID)
+    start(parent, productId, avgOrderBookPID)
   end
 end
 
 defmodule CurrencyDistributor do
-  def start(productDistributorPIDs \\ %{}) do
+  def start(parent, productDistributorPIDs \\ %{}, doneDistributors \\ []) do
     receive do
       {:cbmessage, %CBMessage{} = content} ->
-        content.events
-        |> Enum.map(fn %CBEvent{} = event ->
-          productId = event.product_id
+        productDistributorPIDs =
+          content.events
+          |> Enum.map(fn %CBEvent{} = event ->
+            productId = event.product_id
 
-          productDistributorPIDs =
-            Map.put_new(
-              productDistributorPIDs,
-              productId,
-              spawn(ProductDistributor, :start, [productId])
-            )
+            if productId == nil do
+              IO.inspect(event)
+            end
 
-          send(productDistributorPIDs[productId], {:cbevent, event})
+            productDistributorPIDs =
+              Map.put_new(
+                productDistributorPIDs,
+                productId,
+                spawn(ProductDistributor, :start, [self(), productId])
+              )
 
-          productDistributorPIDs
-        end)
-        |> Enum.reduce(productDistributorPIDs, fn x, acc -> Map.merge(x, acc) end)
-        |> start
+            send(productDistributorPIDs[productId], {:cbevent, event})
+
+            productDistributorPIDs
+          end)
+          |> Enum.reduce(productDistributorPIDs, fn x, acc -> Map.merge(x, acc) end)
+
+        start(parent, productDistributorPIDs, doneDistributors)
+
+      {:lastmessage} ->
+        Enum.map(
+          productDistributorPIDs,
+          fn {productId, pid} -> send(pid, {:lastmessage}) end
+        )
+
+        start(parent, productDistributorPIDs, doneDistributors)
+
+      {:donemessage, pid} ->
+        doneDistributors = [pid | doneDistributors]
+
+        asdf = Map.keys(productDistributorPIDs)
+        IO.puts("Done: #{length(doneDistributors)} #{length(asdf)}")
+
+        if length(doneDistributors) == length(Map.keys(productDistributorPIDs)) do
+          send(parent, {:donemessage})
+        end
+
+        start(parent, productDistributorPIDs, doneDistributors)
     end
   end
 end
@@ -163,35 +206,58 @@ defmodule JsonInterpreter do
              ]
            }
          ) do
-      {:ok, parsed} ->
+      {:ok, parsed} when parsed.channel == "l2_data" ->
+        parsed.events
+        |> Enum.map(fn %CBEvent{} = event ->
+          productId = event.product_id
+
+          if productId == nil do
+            IO.inspect(json)
+            IO.inspect(parsed)
+          end
+
+          send(coinbaseDistributorPID, {:cbevent, event})
+        end)
+
         send(coinbaseDistributorPID, {:cbmessage, parsed})
+
+      # skip this one
+      {:ok, _parsed} ->
+        nil
 
       {:error, error} ->
         nil
     end
   end
 
-  def start(pid \\ nil) do
+  def start(parent, pid \\ nil) do
     pid =
       if pid == nil do
-        spawn(CurrencyDistributor, :start, [])
+        spawn(CurrencyDistributor, :start, [self()])
       else
         pid
       end
 
     receive do
       {:json, json, index} -> parse_json(pid, json)
+      {:lastmessage} -> send(pid, {:lastmessage})
+      {:donemessage} -> send(parent, {:donemessage})
     end
 
-    start(pid)
+    start(parent, pid)
   end
 end
 
 defmodule FileReader do
-  def start() do
-    # IO.puts("Starting JsonInterpreter")
-    pid = spawn(JsonInterpreter, :start, [])
+  use Application
 
+  def start(_type, _args) do
+    # IO.puts("Starting JsonInterpreter")
+    pid = spawn(JsonInterpreter, :start, [self()])
+
+    starttime = System.monotonic_time(:millisecond)
+
+    # File.stream!("../messages.log")
     File.stream!("../messages_short.log")
     |> Stream.with_index()
     |> Stream.map(fn {line, index} ->
@@ -199,7 +265,15 @@ defmodule FileReader do
     end)
     # |> Stream.map(fn {line, index} -> IO.puts("index: #{index}") end)
     |> Stream.run()
+
+    send(pid, {:lastmessage})
+
+    receive do
+      {:donemessage} ->
+        endtime = System.monotonic_time(:millisecond)
+        IO.puts("Time taken: #{endtime - starttime}ms")
+    end
+
+    :ok
   end
 end
-
-FileReader.start()
