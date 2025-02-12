@@ -62,6 +62,7 @@ defmodule AvgOrderBookCalculator do
   def calculateOrderBookAvg(parent, productId, filewriterPID \\ nil) do
     filewriterPID =
       if filewriterPID == nil do
+        # IO.puts("Spawning filewriter")
         spawn(FileWriter, :writeLine, [self(), "orderbooks/" <> productId <> ".txt"])
       else
         filewriterPID
@@ -148,27 +149,44 @@ defmodule CurrencyDistributor do
   def start(parent, productDistributorPIDs \\ %{}, doneDistributors \\ []) do
     receive do
       {:cbmessage, %CBMessage{} = content} ->
+        # content.events
+        # |> Enum.map(fn %CBEvent{} = event ->
+        #   productId = event.product_id
+        #   # if productId == nil do
+        #   #   IO.inspect(event)
+        #   # end
+        #   productDistributorPIDs =
+        #     Map.put_new(
+        #       productDistributorPIDs,
+        #       productId,
+        #       spawn(ProductDistributor, :start, [self(), productId])
+        #     )
+        #   send(productDistributorPIDs[productId], {:cbevent, event})
+        #   productDistributorPIDs
+        # end)
+        # |> Enum.reduce(productDistributorPIDs, fn x, acc -> Map.merge(x, acc) end)
+
         productDistributorPIDs =
           content.events
-          |> Enum.map(fn %CBEvent{} = event ->
-            productId = event.product_id
+          |> Enum.reduce(
+            productDistributorPIDs,
+            fn event, acc ->
+              productDistributorPIDs =
+                if Map.has_key?(acc, event.product_id) do
+                  acc
+                else
+                  Map.put(
+                    acc,
+                    event.product_id,
+                    spawn(ProductDistributor, :start, [self(), event.product_id])
+                  )
+                end
 
-            if productId == nil do
-              IO.inspect(event)
+              send(productDistributorPIDs[event.product_id], {:cbevent, event})
+
+              productDistributorPIDs
             end
-
-            productDistributorPIDs =
-              Map.put_new(
-                productDistributorPIDs,
-                productId,
-                spawn(ProductDistributor, :start, [self(), productId])
-              )
-
-            send(productDistributorPIDs[productId], {:cbevent, event})
-
-            productDistributorPIDs
-          end)
-          |> Enum.reduce(productDistributorPIDs, fn x, acc -> Map.merge(x, acc) end)
+          )
 
         start(parent, productDistributorPIDs, doneDistributors)
 
@@ -258,7 +276,7 @@ defmodule FileReader do
     starttime = System.monotonic_time(:millisecond)
 
     # File.stream!("../messages.log")
-    File.stream!("../messages_short.log")
+    File.stream!("../messages.log")
     |> Stream.with_index()
     |> Stream.map(fn {line, index} ->
       send(pid, {:json, line, index})

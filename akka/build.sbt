@@ -8,6 +8,8 @@ ThisBuild / scalaVersion := "3.3.4"
 
 val AkkaVersion = "2.10.0"
 
+libraryDependencies += "io.spray" %%  "spray-json" % "1.3.6"
+
 
 lazy val root = (project in file("."))
   .settings(

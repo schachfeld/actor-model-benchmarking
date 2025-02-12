@@ -61,7 +61,7 @@ func (s *Coordinator) HandleMessage(from gen.PID, message any) error {
 			s.Log().Info("fileReader started")
 
 			// Start the test
-			s.Send(s.fileReader, ReadFileMessage{filename: "../messages_short.log"})
+			s.Send(s.fileReader, ReadFileMessage{filename: "../messages.log"})
 		}
 	case DoneMessage:
 		{
