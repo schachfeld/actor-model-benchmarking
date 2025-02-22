@@ -149,23 +149,6 @@ defmodule CurrencyDistributor do
   def start(parent, productDistributorPIDs \\ %{}, doneDistributors \\ []) do
     receive do
       {:cbmessage, %CBMessage{} = content} ->
-        # content.events
-        # |> Enum.map(fn %CBEvent{} = event ->
-        #   productId = event.product_id
-        #   # if productId == nil do
-        #   #   IO.inspect(event)
-        #   # end
-        #   productDistributorPIDs =
-        #     Map.put_new(
-        #       productDistributorPIDs,
-        #       productId,
-        #       spawn(ProductDistributor, :start, [self(), productId])
-        #     )
-        #   send(productDistributorPIDs[productId], {:cbevent, event})
-        #   productDistributorPIDs
-        # end)
-        # |> Enum.reduce(productDistributorPIDs, fn x, acc -> Map.merge(x, acc) end)
-
         productDistributorPIDs =
           content.events
           |> Enum.reduce(
@@ -196,13 +179,12 @@ defmodule CurrencyDistributor do
           fn {productId, pid} -> send(pid, {:lastmessage}) end
         )
 
+        IO.puts("Currency Distributor done")
+
         start(parent, productDistributorPIDs, doneDistributors)
 
       {:donemessage, pid} ->
         doneDistributors = [pid | doneDistributors]
-
-        asdf = Map.keys(productDistributorPIDs)
-        IO.puts("Done: #{length(doneDistributors)} #{length(asdf)}")
 
         if length(doneDistributors) == length(Map.keys(productDistributorPIDs)) do
           send(parent, {:donemessage})
@@ -257,9 +239,15 @@ defmodule JsonInterpreter do
       end
 
     receive do
-      {:json, json, index} -> parse_json(pid, json)
-      {:lastmessage} -> send(pid, {:lastmessage})
-      {:donemessage} -> send(parent, {:donemessage})
+      {:json, json, index} ->
+        parse_json(pid, json)
+
+      {:lastmessage} ->
+        IO.puts("Json Parser done")
+        send(pid, {:lastmessage})
+
+      {:donemessage} ->
+        send(parent, {:donemessage})
     end
 
     start(parent, pid)
@@ -276,7 +264,7 @@ defmodule FileReader do
     starttime = System.monotonic_time(:millisecond)
 
     # File.stream!("../messages.log")
-    File.stream!("../messages.log")
+    File.stream!("../messages_short.log")
     |> Stream.with_index()
     |> Stream.map(fn {line, index} ->
       send(pid, {:json, line, index})
@@ -284,6 +272,7 @@ defmodule FileReader do
     # |> Stream.map(fn {line, index} -> IO.puts("index: #{index}") end)
     |> Stream.run()
 
+    IO.puts("FileReader done")
     send(pid, {:lastmessage})
 
     receive do
