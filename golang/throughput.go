@@ -73,7 +73,7 @@ func testThroughput() {
 
 	start := time.Now()
 	for i := 0; i < N; i++ {
-		nodeping.Send(pid, nil)
+		nodeping.Send(pid, i)
 	}
 
 	elapsed := time.Since(start)
