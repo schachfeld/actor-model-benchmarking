@@ -4,5 +4,5 @@
 
 for i in {1..100}
 do
-  elixir latency.ex > "latency_results/output_$i.txt"
+  elixir latency.ex > "latency_results/˚output_$i.txt"
 done

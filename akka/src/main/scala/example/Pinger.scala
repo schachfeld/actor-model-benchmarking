@@ -33,6 +33,8 @@ object Pinger {
   // #hello-world-main
   def main(args: Array[String]): Unit = {
 
+    println("Start")
+
     val system: ActorSystem[Pinger.Ping] =
       ActorSystem(Pinger(), "hello")
 

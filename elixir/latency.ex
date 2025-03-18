@@ -1,20 +1,20 @@
 defmodule Bench do
-  def pong() do
+  def actor() do
     receive do
       {:ok} -> nil
     end
 
-    pong()
+    actor()
   end
 
-  def ping(index) do
+  def benchLatency(index) do
     if index == 0 do
       nil
     else
-      ping(index - 1)
+      benchLatency(index - 1)
 
       start_time = :os.system_time(:nanosecond)
-      spawn(Bench, :pong, [])
+      spawn(Bench, :actor, [])
       end_time = :os.system_time(:nanosecond)
       elapsed = end_time - start_time
       IO.write("#{elapsed},")
@@ -22,10 +22,8 @@ defmodule Bench do
   end
 end
 
-pid = spawn(Bench, :pong, [])
-
 n = 1_000_000
 
-Bench.ping(n)
+Bench.benchLatency(n)
 
 Process.exit(pid, :kill)
