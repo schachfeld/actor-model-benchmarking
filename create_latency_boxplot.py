@@ -76,4 +76,4 @@ median_patch = plt.Line2D([], [], color='orange', label='Median', linewidth=1)
 
 ax.legend(handles=[mean_patch, median_patch])
 
-plt.savefig('images/latency_boxplot.png', dpi=600)
+plt.savefig('images/latency_boxplot.svg')
