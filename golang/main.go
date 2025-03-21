@@ -4,4 +4,5 @@ func main() {
 
 	// checkPrimes()
 	testThroughput()
+	// testLatency()
 }

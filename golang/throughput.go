@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"runtime"
 	"time"
 
@@ -36,7 +38,7 @@ func (a *MyActor) Terminate(reason error) {
 }
 
 func testThroughput() {
-	N := 100_000_000
+	N := 10_000_000
 	// prepare node
 	options := gen.NodeOptions{}
 	options.Network.Cookie = "cookie"
@@ -80,6 +82,16 @@ func testThroughput() {
 
 	nodeping.Log().Info("received %d messages. %f msg/sec", N, float64(N)/elapsed.Seconds())
 	nodeping.Log().Info("Total time: %s", elapsed)
+
+	file, err := os.OpenFile(fmt.Sprintf("throughput_%d.txt", N), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	if _, err := file.WriteString(fmt.Sprintf("%d,", elapsed.Nanoseconds())); err != nil {
+		panic(err)
+	}
 
 	// nodeping.Log().Info("-------------------------- LOCAL 1-1 (end) ----------------------------------")
 }

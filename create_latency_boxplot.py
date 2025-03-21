@@ -9,7 +9,7 @@ with open("elixir/latency.txt") as f:
 elixirdata = [int(x) for x in elixirdata]
 
 
-with open("golang/latency.txt") as f:
+with open("golang/latency_bench_results/latency.txt") as f:
     godata = f.read().split(",")
 
 godata = [int(x) for x in godata]
@@ -77,3 +77,5 @@ median_patch = plt.Line2D([], [], color='orange', label='Median', linewidth=1)
 ax.legend(handles=[mean_patch, median_patch])
 
 plt.savefig('images/latency_boxplot.svg')
+plt.savefig('images/latency_boxplot.png', dpi=300)
+plt.savefig('images/latency_boxplot.pdf')
