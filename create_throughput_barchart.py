@@ -18,14 +18,14 @@ akkadata = [int(x) for x in akkadata]
 
 fig, ax = plt.subplots()
 
-elixir_msg_per_sec = [1e9 / x for x in elixirdata]
-go_msg_per_sec = [1e9 / x for x in godata]
-akka_msg_per_sec = [1e9 / x for x in akkadata]
+elixir_msg_per_sec = [1e7 / (x / 1e9) for x in elixirdata]
+go_msg_per_sec = [1e7 / (x / 1e9)  for x in godata]
+akka_msg_per_sec = [1e7 / (x / 1e9) for x in akkadata]
 
 means = [np.mean(elixir_msg_per_sec), np.mean(go_msg_per_sec), np.mean(akka_msg_per_sec)]
 tick_labels = ['Elixir', 'Go', 'Akka']
 
-ax.bar(tick_labels, means, color=['blue', 'green', 'red'])
+ax.bar(tick_labels, means, color=[0.53, 0.25, 0.31])
 ax.set_ylabel('Messages per Second')
 ax.set_title('Mean Throughput of 10 Million Messages')
 plt.savefig('images/throughput/throughput_10mil_barchart.svg')

@@ -1,10 +1,14 @@
 package prime
 
-import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import akka.actor.Actor
+import akka.actor.ActorRef
+import akka.actor.ActorSystem
+import akka.actor.Props
 
+import java.io.*
 import scala.annotation.tailrec
-import scala.math.sqrt
 import scala.collection.mutable.ListBuffer
+import scala.math.sqrt
 
 object PrimeCalculator {
   def isPrimeI(n: Int): Boolean = {
@@ -44,18 +48,16 @@ case class PrimeResult(primes: List[Int])
 case object StartCalculation
 
 class PrimeWorker extends Actor {
-  def receive = {
-    case CalculatePrimes(range) =>
-      val primes = range.filter(PrimeCalculator.isPrime).toList
-      sender() ! PrimeResult(primes)
+  def receive = { case CalculatePrimes(range) =>
+    val primes = range.filter(PrimeCalculator.isPrime).toList
+    sender() ! PrimeResult(primes)
   }
 }
-
 
 class PrimeCoordinator(totalWorkers: Int, range: Range) extends Actor {
   var collectedPrimes: ListBuffer[Int] = ListBuffer()
   var resultsReceived = 0
-  val startTime = System.currentTimeMillis()
+  val startTime = System.nanoTime()
 
   val chunkSize = range.length / totalWorkers
   val workers: List[ActorRef] = (1 to totalWorkers).map { _ =>
@@ -66,31 +68,46 @@ class PrimeCoordinator(totalWorkers: Int, range: Range) extends Actor {
     case StartCalculation =>
       for ((worker, i) <- workers.zipWithIndex) {
         val start = range.start + i * chunkSize
-        val end = if (i == totalWorkers - 1) range.end else start + chunkSize - 1
+        val end =
+          if (i == totalWorkers - 1) range.end else start + chunkSize - 1
         worker ! CalculatePrimes(start to end)
       }
-
 
     case PrimeResult(primes) =>
       collectedPrimes ++= primes
       resultsReceived += 1
 
       if (resultsReceived == totalWorkers) {
-        val endTime = System.currentTimeMillis()
+        val endTime = System.nanoTime()
         println(s"Found ${collectedPrimes.length} prime numbers.")
-        println(s"Calculation took ${endTime - startTime} milliseconds.")
+        println(s"Calculation took ${endTime - startTime} nanoseconds.")
+
+        val fileName = s"prime_bench_results/10mil_${totalWorkers}workers.txt"
+        val writer = new PrintWriter(new FileWriter(fileName, true))
+        writer.append(s"${endTime - startTime},")
+        writer.close()
         context.system.terminate()
       }
   }
 }
 
-object ParallelPrimeApp extends App {
-  val system = ActorSystem("PrimeSystem")
-  val range = 1 to 10_000_000
-  val totalWorkers = 10
+object ParallelPrimeApp {
+  def main(args: Array[String]): Unit = {
+    if (args.length < 1) {
+      println("Usage: ParallelPrimeApp <totalWorkers>")
+      System.exit(1)
+    }
 
-  val coordinator = system.actorOf(Props(new PrimeCoordinator(totalWorkers, range)), "coordinator")
-  coordinator ! StartCalculation
+    val totalWorkers = args(0).toInt
+    val system = ActorSystem("PrimeSystem")
+    val range = 1 to 10_000_000
+
+    val coordinator = system.actorOf(
+      Props(new PrimeCoordinator(totalWorkers, range)),
+      "coordinator"
+    )
+    coordinator ! StartCalculation
+  }
 }
 
 object HighestPrime extends App {
@@ -103,7 +120,6 @@ object HighestPrime extends App {
   println(s"Calculation took ${endTime - startTime} nanoseconds.")
 }
 
-
 object RangeWithOne extends App {
   val system = ActorSystem("PrimeSystem")
   val worker = system.actorOf(Props(new PrimeWorker()), "worker")
@@ -111,12 +127,11 @@ object RangeWithOne extends App {
   val startTime = System.currentTimeMillis()
 
   val listener = system.actorOf(Props(new Actor {
-    def receive = {
-      case PrimeResult(primes) =>
-        val endTime = System.currentTimeMillis()
-        println(s"Found ${primes.length} prime numbers.")
-        println(s"Calculation took ${endTime - startTime} milliseconds.")
-        context.system.terminate()
+    def receive = { case PrimeResult(primes) =>
+      val endTime = System.currentTimeMillis()
+      println(s"Found ${primes.length} prime numbers.")
+      println(s"Calculation took ${endTime - startTime} milliseconds.")
+      context.system.terminate()
     }
   }))
 

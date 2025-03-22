@@ -72,9 +72,9 @@ defmodule PrimeApp do
 
     IO.puts("Starting prime number calculation with #{total_workers} workers...")
 
-    start_time = :os.system_time(:millisecond)
+    start_time = :os.system_time(:nanosecond)
     prime_count = PrimeCoordinator.start(total_workers, range)
-    end_time = :os.system_time(:millisecond)
+    end_time = :os.system_time(:nanosecond)
 
     IO.puts("Found #{prime_count} prime numbers.")
     IO.puts("Calculation took #{end_time - start_time} milliseconds.")
