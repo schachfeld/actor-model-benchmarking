@@ -26,7 +26,7 @@ lazy val root = (project in file("."))
 
 enablePlugins(AssemblyPlugin)
 
-mainClass in assembly := Some("example.LatencyBenchmark")
+mainClass in assembly := Some("example.Pinger")
 
 import sbtassembly.AssemblyPlugin.autoImport._
 

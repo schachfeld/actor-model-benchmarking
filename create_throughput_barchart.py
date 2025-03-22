@@ -23,14 +23,18 @@ go_msg_per_sec = [1e9 / x for x in godata]
 akka_msg_per_sec = [1e9 / x for x in akkadata]
 
 means = [np.mean(elixir_msg_per_sec), np.mean(go_msg_per_sec), np.mean(akka_msg_per_sec)]
-labels = ['Elixir', 'Go', 'Akka']
+tick_labels = ['Elixir', 'Go', 'Akka']
 
-ax.bar(labels, means, color=['blue', 'green', 'red'])
+ax.bar(tick_labels, means, color=['blue', 'green', 'red'])
 ax.set_ylabel('Messages per Second')
 ax.set_title('Mean Throughput of 10 Million Messages')
+plt.savefig('images/throughput/throughput_10mil_barchart.svg')
+plt.savefig('images/throughput/throughput_10mil_barchart.png', dpi=300)
+plt.savefig('images/throughput/throughput_10mil_barchart.pdf')
+
 
 fig, ax2 = plt.subplots()
-ax2.boxplot([elixir_msg_per_sec, go_msg_per_sec, akka_msg_per_sec], labels=labels)
+ax2.boxplot([elixir_msg_per_sec, go_msg_per_sec, akka_msg_per_sec], tick_labels=tick_labels, meanline=True, showmeans=True)
 ax2.set_ylabel('Messages per Second')
 ax2.set_title('Throughput Distribution of 10 Million Messages')
 
@@ -38,6 +42,3 @@ plt.savefig('images/throughput/throughput_10mil_boxplot.svg')
 plt.savefig('images/throughput/throughput_10mil_boxplot.png', dpi=300)
 plt.savefig('images/throughput/throughput_10mil_boxplot.pdf')
 
-plt.savefig('images/throughput/throughput_10mil_barchart.svg')
-plt.savefig('images/throughput/throughput_10mil_barchart.png', dpi=300)
-plt.savefig('images/throughput/throughput_10mil_barchart.pdf')

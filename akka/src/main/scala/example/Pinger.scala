@@ -5,32 +5,22 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 
-//#hello-world-actor
-object Pong {
-  final case class Greet(whom: String)
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 
-  def apply(): Behavior[Greet] = Behaviors.receive { (context, message) =>
-    Behaviors.same
-  }
-}
-//#hello-world-actor
-
-//#hello-world-main
 object Pinger {
 
-  final case class Ping(message: String)
+  final case class Ping(message: Int)
 
   def apply(): Behavior[Ping] =
     Behaviors.setup { context =>
-//      val pong = context.spawn(Pong(), "pong")
-
       Behaviors.receiveMessage { message =>
-//        pong ! Pong.Greet(message.message)
         Behaviors.same
       }
     }
 
-  // #hello-world-main
   def main(args: Array[String]): Unit = {
 
     println("Start")
@@ -38,11 +28,11 @@ object Pinger {
     val system: ActorSystem[Pinger.Ping] =
       ActorSystem(Pinger(), "hello")
 
-    val messageNum = 100_000_000
+    val messageNum = 10_000_000
 
     val startTime = System.nanoTime()
     for (i <- 0 until messageNum) {
-      system ! Pinger.Ping("World")
+      system ! Pinger.Ping(i)
     }
     val endTime = System.nanoTime()
     val elapsedTime = endTime - startTime
@@ -52,9 +42,18 @@ object Pinger {
     println(s"Time taken: $elapsedTimeSec s")
     println(s"Throughput: ${messageNum / elapsedTimeSec} msg/s")
 
-    Thread.sleep(3000)
+    val n = 1 // You can change this to any number you want
+    val filePath = s"throughput_bench_results/throughput_$n.txt"
+    val content = s"$elapsedTime,"
+
+    Files.write(
+      Paths.get(filePath),
+      content.getBytes(StandardCharsets.UTF_8),
+      StandardOpenOption.CREATE,
+      StandardOpenOption.APPEND
+    )
+
+    // Thread.sleep(3000)
     system.terminate()
   }
-  // #hello-world-main
 }
-//#hello-world-main
