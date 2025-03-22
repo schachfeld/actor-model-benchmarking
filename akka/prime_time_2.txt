@@ -1,18 +1,18 @@
 	Command being timed: "java -jar target/scala-3.3.4/akka-assembly-0.1.0-SNAPSHOT.jar 2"
-	User time (seconds): 6.01
-	System time (seconds): 0.15
-	Percent of CPU this job got: 195%
-	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.15
+	User time (seconds): 5.87
+	System time (seconds): 0.13
+	Percent of CPU this job got: 193%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.10
 	Average shared text size (kbytes): 0
 	Average unshared data size (kbytes): 0
 	Average stack size (kbytes): 0
 	Average total size (kbytes): 0
-	Maximum resident set size (kbytes): 217816
+	Maximum resident set size (kbytes): 210456
 	Average resident set size (kbytes): 0
 	Major (requiring I/O) page faults: 0
-	Minor (reclaiming a frame) page faults: 51399
-	Voluntary context switches: 3582
-	Involuntary context switches: 7
+	Minor (reclaiming a frame) page faults: 49789
+	Voluntary context switches: 3308
+	Involuntary context switches: 38
 	Swaps: 0
 	File system inputs: 0
 	File system outputs: 64

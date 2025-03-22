@@ -82,7 +82,8 @@ class PrimeCoordinator(totalWorkers: Int, range: Range) extends Actor {
         println(s"Found ${collectedPrimes.length} prime numbers.")
         println(s"Calculation took ${endTime - startTime} nanoseconds.")
 
-        val fileName = s"prime_bench_results/10mil_${totalWorkers}workers.txt"
+        val fileName =
+          s"prime_bench_results/run_2/10mil_${totalWorkers}workers.txt"
         val writer = new PrintWriter(new FileWriter(fileName, true))
         writer.append(s"${endTime - startTime},")
         writer.close()
