@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"runtime"
 	"time"
 
@@ -104,7 +106,19 @@ func (a *PrimeCoordinator) HandleMessage(from gen.PID, message any) error {
 				a.Log().Info("All workers finished")
 				a.Log().Info("Total primes found: %d", len(a.allPrimes))
 				a.Log().Info("Total time: %s", elapsed)
+
+				file, err := os.OpenFile(fmt.Sprintf("prime_bench_results/10mil_%dworkers.txt", a.workerCount), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+				if err != nil {
+					a.Log().Error("Failed to open file: %s", err)
+				}
+				defer file.Close()
+
+				if _, err := file.WriteString(fmt.Sprintf("%d,", elapsed.Nanoseconds())); err != nil {
+					a.Log().Error("Failed to write to file: %s", err)
+				}
+
 				a.Terminate(nil)
+				a.Node().StopForce()
 			}
 		}
 	case PrimeCoordinatorStartMessage:
@@ -121,6 +135,7 @@ func (a *PrimeCoordinator) HandleMessage(from gen.PID, message any) error {
 			}
 
 			a.Log().Info("Starting prime number calculation")
+			a.Log().Info("Number of workers: %d", a.workerCount)
 			a.startTime = time.Now()
 			for i := 0; i < a.workerCount; i++ {
 				start := m.maxN / a.workerCount * i
@@ -141,9 +156,8 @@ func (a *PrimeCoordinator) Terminate(reason error) {
 	a.Log().Info("%s terminated with reason: %s", a.PID(), reason)
 }
 
-func checkPrimes() {
+func checkPrimes(workers int) {
 	N := 10_000_000
-	workers := 10
 	// prepare node
 	options := gen.NodeOptions{}
 	options.Network.Cookie = "cookie"
@@ -179,7 +193,5 @@ func checkPrimes() {
 
 	node.Wait()
 
-	// nodeping.Log().Info("Total time: %s", elapsed)
-
-	// nodeping.Log().Info("-------------------------- LOCAL 1-1 (end) ----------------------------------")
+	node.Log().Info("-------------------------- LOCAL 1-1 (end) ----------------------------------")
 }

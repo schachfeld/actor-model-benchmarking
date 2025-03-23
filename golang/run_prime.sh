@@ -8,8 +8,7 @@ do
     for i in {1..100}
     do
         echo "Workers: $arg, Iteration: $i"
-        export TOTAL_WORKERS=$arg
-        /usr/bin/time -v -o prime_time_${arg}.txt elixir prime_number_check.ex
+        /usr/bin/time -v -o prime_time_${arg}.txt ./main $arg
     done
 done
 
