@@ -261,7 +261,7 @@ defmodule FileReader do
     # IO.puts("Starting JsonInterpreter")
     pid = spawn(JsonInterpreter, :start, [self()])
 
-    starttime = System.monotonic_time(:millisecond)
+    starttime = System.monotonic_time(:nanosecond)
 
     # File.stream!("../messages.log")
     File.stream!("../messages_short.log")
@@ -277,7 +277,7 @@ defmodule FileReader do
 
     receive do
       {:donemessage} ->
-        endtime = System.monotonic_time(:millisecond)
+        endtime = System.monotonic_time(:nanosecond)
         IO.puts("Time taken: #{endtime - starttime}ms")
     end
 

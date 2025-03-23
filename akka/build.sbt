@@ -11,7 +11,7 @@ val AkkaVersion = "2.10.0"
 
 libraryDependencies += "io.spray" %% "spray-json" % "1.3.6"
 
-Compile / mainClass := Some("prime.ParallelPrimeApp")
+Compile / mainClass := Some("coinbaseanalyzer.Coordinator")
 
 lazy val root = (project in file("."))
   .settings(
@@ -26,7 +26,7 @@ lazy val root = (project in file("."))
 
 enablePlugins(AssemblyPlugin)
 
-mainClass in assembly := Some("prime.ParallelPrimeApp")
+mainClass in assembly := Some("coinbaseanalyzer.Coordinator")
 
 import sbtassembly.AssemblyPlugin.autoImport._
 
