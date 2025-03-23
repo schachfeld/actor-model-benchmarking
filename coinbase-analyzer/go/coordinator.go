@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"time"
 
 	"ergo.services/ergo/act"
@@ -68,6 +70,20 @@ func (s *Coordinator) HandleMessage(from gen.PID, message any) error {
 			elapsed := time.Since(s.startTime)
 			s.Log().Info("Coordinator received DoneMessage")
 			s.Log().Info("Elapsed time: %s", elapsed)
+
+			file, err := os.OpenFile("bench_data/bench.txt", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
+			if err != nil {
+				s.Log().Error("Failed to open bench_data/bench.txt: %s", err)
+				return err
+			}
+			defer file.Close()
+
+			if _, err := file.WriteString(fmt.Sprintf("%d,", elapsed.Nanoseconds())); err != nil {
+				s.Log().Error("Failed to write to bench_data/bench.txt: %s", err)
+				return err
+			}
+
+			s.Node().StopForce()
 		}
 	default:
 		{
