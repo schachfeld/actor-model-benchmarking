@@ -68,7 +68,12 @@ end
 defmodule PrimeApp do
   def run do
     range = 1..10_000_000
-    total_workers = 10
+
+    total_workers =
+      case System.get_env("TOTAL_WORKERS") do
+        nil -> 10
+        workers -> String.to_integer(workers)
+      end
 
     IO.puts("Starting prime number calculation with #{total_workers} workers...")
 
@@ -77,7 +82,13 @@ defmodule PrimeApp do
     end_time = :os.system_time(:nanosecond)
 
     IO.puts("Found #{prime_count} prime numbers.")
-    IO.puts("Calculation took #{end_time - start_time} milliseconds.")
+    IO.puts("Calculation took #{end_time - start_time} nanoseconds.")
+
+    File.write!(
+      "prime_bench_results/10mil_#{total_workers}workers.txt",
+      "#{end_time - start_time},",
+      [:append]
+    )
   end
 end
 
