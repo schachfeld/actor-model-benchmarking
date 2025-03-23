@@ -11,7 +11,7 @@ with open("golang/throughput_bench_results/throughput_10000000.txt") as f:
 
 godata = [int(x) for x in godata]
 
-with open("akka//throughput_bench_results/throughput_10000000.txt") as f:
+with open("akka/throughput_bench_results/throughput_10000000.txt") as f:
     akkadata = f.read().split(",")
 akkadata = [int(x) for x in akkadata]
 
@@ -25,6 +25,7 @@ akka_msg_per_sec = [1e7 / (x / 1e9) for x in akkadata]
 means = [np.mean(elixir_msg_per_sec), np.mean(go_msg_per_sec), np.mean(akka_msg_per_sec)]
 tick_labels = ['Elixir', 'Go', 'Akka']
 
+plt.tight_layout(pad=1)
 ax.bar(tick_labels, means, color=[0.53, 0.25, 0.31])
 ax.set_ylabel('Messages per Second')
 ax.set_title('Mean Throughput of 10 Million Messages')
@@ -38,6 +39,7 @@ ax2.boxplot([elixir_msg_per_sec, go_msg_per_sec, akka_msg_per_sec], tick_labels=
 ax2.set_ylabel('Messages per Second')
 ax2.set_title('Throughput Distribution of 10 Million Messages')
 
+plt.tight_layout(pad=0.5)
 plt.savefig('images/throughput/throughput_10mil_boxplot.svg')
 plt.savefig('images/throughput/throughput_10mil_boxplot.png', dpi=300)
 plt.savefig('images/throughput/throughput_10mil_boxplot.pdf')

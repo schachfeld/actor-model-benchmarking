@@ -13,61 +13,57 @@ import numpy as np
 
 run = "run_2"
 
-with open(f"akka/prime_bench_results/{run}/10mil_1workers.txt") as f:
-    akkadata1 = f.read().split(",")
-akkadata1 = [int(x) for x in akkadata1]
+workers_list = [1, 2, 5, 10, 20, 50, 100, 1000]
+akkadata = []
 
-with open(f"akka/prime_bench_results/{run}/10mil_2workers.txt") as f:
-    akkadata2 = f.read().split(",")
-akkadata2 = [int(x) for x in akkadata2]
+for workers in workers_list:
+    with open(f"akka/prime_bench_results/{run}/10mil_{workers}workers.txt") as f:
+        data = f.read().split(",")
+    data = [int(x) for x in data]
+    akkadata.append(np.array(data) / 1e9)
 
-with open(f"akka/prime_bench_results/{run}/10mil_5workers.txt") as f:
-    akkadata5 = f.read().split(",")
-akkadata5 = [int(x) for x in akkadata5]
-
-with open(f"akka/prime_bench_results/{run}/10mil_10workers.txt") as f:
-    akkadata10 = f.read().split(",")
-akkadata10 = [int(x) for x in akkadata10]
-
-with open(f"akka/prime_bench_results/{run}/10mil_20workers.txt") as f:
-    akkadata20 = f.read().split(",")
-akkadata20 = [int(x) for x in akkadata20]
-
-with open(f"akka/prime_bench_results/{run}/10mil_50workers.txt") as f:
-    akkadata50 = f.read().split(",")
-akkadata50 = [int(x) for x in akkadata50]
-
-with open(f"akka/prime_bench_results/{run}/10mil_100workers.txt") as f:
-    akkadata100 = f.read().split(",")
-akkadata100 = [int(x) for x in akkadata100]
-
-with open(f"akka/prime_bench_results/{run}/10mil_1000workers.txt") as f:
-    akkadata1000 = f.read().split(",")
-akkadata1000 = [int(x) for x in akkadata1000]
+akkadata1, akkadata2, akkadata5, akkadata10, akkadata20, akkadata50, akkadata100, akkadata1000 = akkadata
 
 
-# Convert data points from nanoseconds to seconds
-akkadata1 = np.array(akkadata1) / 1e9
-akkadata2 = np.array(akkadata2) / 1e9
-akkadata5 = np.array(akkadata5) / 1e9
-akkadata10 = np.array(akkadata10) / 1e9
-akkadata20 = np.array(akkadata20) / 1e9
-akkadata50 = np.array(akkadata50) / 1e9
-akkadata100 = np.array(akkadata100) / 1e9
-akkadata1000 = np.array(akkadata1000) / 1e9
+godata = []
+
+for workers in workers_list:
+    with open(f"golang/prime_bench_results/10mil_{workers}workers.txt") as f:
+        data = f.read().split(",")
+    data = [int(x) for x in data]
+    godata.append(np.array(data) / 1e9)
+
+godata1, godata2, godata5, godata10, godata20, godata50, godata100, godata1000 = godata
+
+elixirdata = []
+
+for workers in workers_list:
+    with open(f"elixir/prime_bench_results/10mil_{workers}workers.txt") as f:
+        data = f.read().split(",")
+    data = [int(x) for x in data]
+    elixirdata.append(np.array(data) / 1e9)
+
+elixirdata1, elixirdata2, elixirdata5, elixirdata10, elixirdata20, elixirdata50, elixirdata100, elixirdata1000 = elixirdata
 
 # Create a chart
 workers = [1, 2, 5, 10, 20, 50, 100, 1000]
-times = [np.mean(akkadata1), np.mean(akkadata2), np.mean(akkadata5), np.mean(akkadata10), np.mean(akkadata20), np.mean(akkadata50), np.mean(akkadata100), np.mean(akkadata1000)]
+
+akka_times = [np.mean(akkadata1), np.mean(akkadata2), np.mean(akkadata5), np.mean(akkadata10), np.mean(akkadata20), np.mean(akkadata50), np.mean(akkadata100), np.mean(akkadata1000)]
+go_times = [np.mean(godata1), np.mean(godata2), np.mean(godata5), np.mean(godata10), np.mean(godata20), np.mean(godata50), np.mean(godata100), np.mean(godata1000)]
+elixir_times = [np.mean(elixirdata1), np.mean(elixirdata2), np.mean(elixirdata5), np.mean(elixirdata10), np.mean(elixirdata20), np.mean(elixirdata50), np.mean(elixirdata100), np.mean(elixirdata1000)]
 
 plt.figure(figsize=(10, 6))
-plt.plot(workers, times, marker='o')
+plt.plot(workers, akka_times, marker='o', label='Akka')
+plt.plot(workers, go_times, marker='o', label='Golang')
+plt.plot(workers, elixir_times, marker='o', label='Elixir')
 plt.xscale('log')
 plt.xlabel('Number of Workers')
 plt.ylabel('Time (seconds)')
 plt.title('Prime Calculation Time vs Number of Workers')
+plt.legend()
 plt.grid(True)
 
+plt.tight_layout(pad=0)
 plt.savefig('images/prime/prime_chart.svg')
 plt.savefig('images/prime/prime_chart.png', dpi=300)
 plt.savefig('images/prime/prime_chart.pdf')
