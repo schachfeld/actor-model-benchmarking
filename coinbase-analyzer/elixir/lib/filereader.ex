@@ -264,7 +264,7 @@ defmodule FileReader do
     starttime = System.monotonic_time(:nanosecond)
 
     # File.stream!("../messages.log")
-    File.stream!("../messages_short.log")
+    File.stream!("../messages.log")
     |> Stream.with_index()
     |> Stream.map(fn {line, index} ->
       send(pid, {:json, line, index})
@@ -279,6 +279,8 @@ defmodule FileReader do
       {:donemessage} ->
         endtime = System.monotonic_time(:nanosecond)
         IO.puts("Time taken: #{endtime - starttime}ms")
+
+        File.write!("results/cb_analyzer_long.txt", "#{endtime - starttime},", [:append])
     end
 
     :ok

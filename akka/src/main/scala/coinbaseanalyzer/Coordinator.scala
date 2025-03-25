@@ -23,7 +23,7 @@ object Coordinator {
         val result = s"$elapsed,"
 
         Files.write(
-          Paths.get("cb_analyzer_results/cb_analyzer.txt"),
+          Paths.get("cb_analyzer_results/cb_analyzer_short.txt"),
           result.getBytes,
           StandardOpenOption.CREATE,
           StandardOpenOption.APPEND
@@ -36,6 +36,6 @@ object Coordinator {
     val fileReader =
       system.actorOf(Props(new FileReader(listener)), "fileReader")
 
-    fileReader ! StartMessage("../coinbase-analyzer/messages.log")
+    fileReader ! StartMessage("../coinbase-analyzer/messages_short.log")
   }
 }
